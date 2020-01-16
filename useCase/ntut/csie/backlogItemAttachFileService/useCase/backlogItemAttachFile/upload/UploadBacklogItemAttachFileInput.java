@@ -1,13 +1,11 @@
 package ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.upload;
 
-import java.io.InputStream;
-
 import ntut.csie.backlogItemAttachFileService.useCase.Input;
 
 public interface UploadBacklogItemAttachFileInput extends Input {
-	public InputStream getUploadedAttachFileInputStream();
+	public byte[] getAttachFileContent();
 	
-	public void setUploadedAttachFileInputStream(InputStream uploadedAttachFileInputStream);
+	public void setAttachFileContent(byte[] attachFileContent);
 	
 	public String getName();
 	

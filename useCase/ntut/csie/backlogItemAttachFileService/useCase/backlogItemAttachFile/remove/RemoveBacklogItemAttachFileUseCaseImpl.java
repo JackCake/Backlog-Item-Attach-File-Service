@@ -28,6 +28,10 @@ public class RemoveBacklogItemAttachFileUseCaseImpl implements RemoveBacklogItem
 			output.setErrorMessage("Sorry, there is the problem when remove the attach file!");
 			return;
 		}
+		File folder = attachFile.getParentFile();
+		if(folder.list().length == 0) {
+			folder.delete();
+		}
 		try {
 			backlogItemAttachFileRepository.remove(backlogItemAttachFile);
 		} catch (Exception e) {

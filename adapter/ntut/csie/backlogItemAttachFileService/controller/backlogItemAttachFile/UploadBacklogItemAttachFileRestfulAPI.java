@@ -1,7 +1,5 @@
 package ntut.csie.backlogItemAttachFileService.controller.backlogItemAttachFile;
 
-import java.io.InputStream;
-
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -10,8 +8,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 import ntut.csie.backlogItemAttachFileService.ApplicationContext;
 import ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.upload.UploadBacklogItemAttachFileInput;
@@ -28,17 +28,30 @@ public class UploadBacklogItemAttachFileRestfulAPI implements UploadBacklogItemA
 	private String errorMessage;
 	
 	@POST
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public synchronized UploadBacklogItemAttachFileOutput uploadBacklogItemAttachFile(
 			@PathParam("backlog_item_id") String backlogItemId, 
-			@FormDataParam("attach_file") InputStream uploadedAttachFileInputStream, 
-			@FormDataParam("attach_file") FormDataContentDisposition attachFileDetail) {
+			String backlogItemAttachFileInfo) {
+		byte[] attachFileContent = null;
+		String name = "";
+		
 		UploadBacklogItemAttachFileOutput output = this;
 		
+		try {
+			JSONObject backlogItemAttachFileJSON = new JSONObject(backlogItemAttachFileInfo);
+			attachFileContent = Base64.decode(backlogItemAttachFileJSON.getString("attachFileContent"));
+			name = backlogItemAttachFileJSON.getString("name");
+		} catch (JSONException e) {
+			e.printStackTrace();
+			output.setUploadSuccess(false);
+			output.setErrorMessage("Sorry, please try again!");
+			return output;
+		}
+		
 		UploadBacklogItemAttachFileInput input = (UploadBacklogItemAttachFileInput) uploadBacklogItemAttachFileUseCase;
-		input.setUploadedAttachFileInputStream(uploadedAttachFileInputStream);
-		input.setName(attachFileDetail.getFileName());
+		input.setAttachFileContent(attachFileContent);
+		input.setName(name);
 		input.setBacklogItemId(backlogItemId);
 		
 		uploadBacklogItemAttachFileUseCase.execute(input, output);

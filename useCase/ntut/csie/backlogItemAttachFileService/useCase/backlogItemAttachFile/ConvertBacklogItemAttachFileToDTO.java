@@ -8,7 +8,6 @@ public class ConvertBacklogItemAttachFileToDTO {
 		dto.setBacklogItemAttachFileId(backlogItemAttachFile.getBacklogItemAttachFileId());
 		dto.setOrderId(backlogItemAttachFile.getOrderId());
 		dto.setName(backlogItemAttachFile.getName());
-		dto.setPath(backlogItemAttachFile.getPath());
 		dto.setBacklogItemId(backlogItemAttachFile.getBacklogItemId());
 		return dto;
 	}

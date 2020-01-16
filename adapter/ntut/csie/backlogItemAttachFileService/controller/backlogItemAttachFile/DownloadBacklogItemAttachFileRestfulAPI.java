@@ -6,7 +6,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import ntut.csie.backlogItemAttachFileService.ApplicationContext;
 import ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.download.DownloadBacklogItemAttachFileInput;
@@ -21,7 +20,7 @@ public class DownloadBacklogItemAttachFileRestfulAPI implements DownloadBacklogI
 	
 	private boolean downloadSuccess;
 	private String errorMessage;
-	private Response response;
+	private byte[] attachFileContent;
 	
 	@GET
 	@Path("/{backlog_item_attach_file_id}")
@@ -59,12 +58,12 @@ public class DownloadBacklogItemAttachFileRestfulAPI implements DownloadBacklogI
 	}
 
 	@Override
-	public Response getResponse() {
-		return response;
+	public byte[] getAttachFileContent() {
+		return attachFileContent;
 	}
 
 	@Override
-	public void setResponse(Response response) {
-		this.response = response;
+	public void setAttachFileContent(byte[] attachFileContent) {
+		this.attachFileContent = attachFileContent;
 	}
 }

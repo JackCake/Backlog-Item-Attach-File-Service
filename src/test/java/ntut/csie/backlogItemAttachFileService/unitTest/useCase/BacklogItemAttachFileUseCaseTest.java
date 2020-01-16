@@ -4,9 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,15 +66,16 @@ public class BacklogItemAttachFileUseCaseTest {
 	@Test
 	public void Should_Success_When_UploadBacklogItemAttachFile() {
 		String name = "Test.txt";
-		InputStream uploadedAttachFileInputStream = null;
+		File attachFile = new File(name);
+		byte[] attachFileContent = null;
 		try {
-			uploadedAttachFileInputStream = new FileInputStream(name);
-		} catch (FileNotFoundException e) {
+			attachFileContent = Files.readAllBytes(attachFile.toPath());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		String backlogItemId = "1";
 		
-		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(uploadedAttachFileInputStream, name, backlogItemId);
+		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContent, name, backlogItemId);
 		
 		assertTrue(output.isUploadSuccess());
 	}
@@ -88,13 +88,14 @@ public class BacklogItemAttachFileUseCaseTest {
 		int numberOfBacklogItemAttachFiles = names.length;
 		
 		for(int i = 0; i < numberOfBacklogItemAttachFiles; i++) {
-			InputStream uploadedAttachFileInputStream = null;
+			File attachFile = new File(names[i]);
+			byte[] attachFileContent = null;
 			try {
-				uploadedAttachFileInputStream = new FileInputStream(names[i]);
-			} catch (FileNotFoundException e) {
+				attachFileContent = Files.readAllBytes(attachFile.toPath());
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			uploadBacklogItemAttachFile(uploadedAttachFileInputStream, names[i], backlogItemId);
+			uploadBacklogItemAttachFile(attachFileContent, names[i], backlogItemId);
 		}
 		
 		GetBacklogItemAttachFilesByBacklogItemIdOutput output = getBacklogItemAttachFilesByBacklogItemId();
@@ -106,15 +107,16 @@ public class BacklogItemAttachFileUseCaseTest {
 	@Test
 	public void Should_Success_When_DownloadBacklogItemAttachFile() {
 		String name = "Test.txt";
-		InputStream uploadedAttachFileInputStream = null;
+		File attachFile = new File(name);
+		byte[] attachFileContent = null;
 		try {
-			uploadedAttachFileInputStream = new FileInputStream(name);
-		} catch (FileNotFoundException e) {
+			attachFileContent = Files.readAllBytes(attachFile.toPath());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		String backlogItemId = "1";
 		
-		uploadBacklogItemAttachFile(uploadedAttachFileInputStream, name, backlogItemId);
+		uploadBacklogItemAttachFile(attachFileContent, name, backlogItemId);
 
 		List<BacklogItemAttachFile> backlogItemAttachFileList = new ArrayList<>(fakeBacklogItemAttachFileRepository.getBacklogItemAttachFilesByBacklogItemId(backlogItemId));
 		String backlogItemAttachFileId = backlogItemAttachFileList.get(backlogItemAttachFileList.size() - 1).getBacklogItemAttachFileId();
@@ -127,15 +129,16 @@ public class BacklogItemAttachFileUseCaseTest {
 	@Test
 	public void Should_Success_When_RemoveBacklogItemAttachFile() {
 		String name = "Test.txt";
-		InputStream uploadedAttachFileInputStream = null;
+		File attachFile = new File(name);
+		byte[] attachFileContent = null;
 		try {
-			uploadedAttachFileInputStream = new FileInputStream(name);
-		} catch (FileNotFoundException e) {
+			attachFileContent = Files.readAllBytes(attachFile.toPath());
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		String backlogItemId = "1";
 		
-		uploadBacklogItemAttachFile(uploadedAttachFileInputStream, name, backlogItemId);
+		uploadBacklogItemAttachFile(attachFileContent, name, backlogItemId);
 		List<BacklogItemAttachFile> backlogItemAttachFileList = new ArrayList<>(fakeBacklogItemAttachFileRepository.getBacklogItemAttachFilesByBacklogItemId(backlogItemId));
 		String backlogItemAttachFileId = backlogItemAttachFileList.get(backlogItemAttachFileList.size() - 1).getBacklogItemAttachFileId();
 		
@@ -144,10 +147,10 @@ public class BacklogItemAttachFileUseCaseTest {
 		assertTrue(output.isRemoveSuccess());
 	}
 	
-	private UploadBacklogItemAttachFileOutput uploadBacklogItemAttachFile(InputStream uploadedAttachFileInputStream, String name, String backlogItemId) {
+	private UploadBacklogItemAttachFileOutput uploadBacklogItemAttachFile(byte[] attachFileContent, String name, String backlogItemId) {
 		UploadBacklogItemAttachFileUseCase addBacklogItemAttachFileUseCase = new UploadBacklogItemAttachFileUseCaseImpl(fakeBacklogItemAttachFileRepository);
 		UploadBacklogItemAttachFileInput input = (UploadBacklogItemAttachFileInput) addBacklogItemAttachFileUseCase;
-		input.setUploadedAttachFileInputStream(uploadedAttachFileInputStream);
+		input.setAttachFileContent(attachFileContent);
 		input.setName(name);
 		input.setBacklogItemId(backlogItemId);
 		UploadBacklogItemAttachFileOutput output = new UploadBacklogItemAttachFileRestfulAPI();

@@ -1,9 +1,8 @@
 package ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.download;
 
 import java.io.File;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
+import java.io.IOException;
+import java.nio.file.Files;
 
 import ntut.csie.backlogItemAttachFileService.model.backlogItemAttachFile.BacklogItemAttachFile;
 import ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.BacklogItemAttachFileRepository;
@@ -25,11 +24,17 @@ public class DownloadBacklogItemAttachFileUseCaseImpl implements DownloadBacklog
 			output.setErrorMessage("Sorry, the attach file of the backlog item is not exist!");
 			return;
 		}
-		output.setDownloadSuccess(true);
 		File attachFile = new File(backlogItemAttachFile.getPath());
-		ResponseBuilder responseBuilder = Response.ok((Object) attachFile);
-		responseBuilder.header("Content-Disposition", "attachment; filename=" + backlogItemAttachFile.getName());
-		output.setResponse(responseBuilder.build());
+		byte[] attachFileContent = null;
+		try {
+			attachFileContent = Files.readAllBytes(attachFile.toPath());
+		} catch (IOException e) {
+			output.setDownloadSuccess(false);
+			output.setErrorMessage(e.getMessage());
+			return;
+		}
+		output.setDownloadSuccess(true);
+		output.setAttachFileContent(attachFileContent);
 	}
 
 	@Override

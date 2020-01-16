@@ -2,7 +2,6 @@ package ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.upl
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 import ntut.csie.backlogItemAttachFileService.model.backlogItemAttachFile.BacklogItemAttachFile;
@@ -12,7 +11,7 @@ import ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.Back
 public class UploadBacklogItemAttachFileUseCaseImpl implements UploadBacklogItemAttachFileUseCase, UploadBacklogItemAttachFileInput {
 	private BacklogItemAttachFileRepository backlogItemAttachFileRepository;
 	
-	private InputStream uploadedAttachFileInputStream;
+	private byte[] attachFileContent;
 	private String name;
 	private String backlogItemId;
 	
@@ -22,7 +21,7 @@ public class UploadBacklogItemAttachFileUseCaseImpl implements UploadBacklogItem
 	
 	@Override
 	public void execute(UploadBacklogItemAttachFileInput input, UploadBacklogItemAttachFileOutput output) {
-		InputStream uploadedAttachFileInputStream = input.getUploadedAttachFileInputStream();
+		byte[] attachFileContent = input.getAttachFileContent();
 		String backlogItemId = input.getBacklogItemId();
 		String name = input.getName();
 		String folderPath = "backlogItemAttachFiles" + File.separator + backlogItemId;
@@ -40,11 +39,7 @@ public class UploadBacklogItemAttachFileUseCaseImpl implements UploadBacklogItem
 				folder.mkdirs();
 			}
 			OutputStream uploadedAttachFileOutputStream = new FileOutputStream(new File(attachFilePath));
-			int numberOfReadedBytes = 0;
-			byte[] bytes = new byte[1024];
-			while((numberOfReadedBytes = uploadedAttachFileInputStream.read(bytes)) != -1) {
-				uploadedAttachFileOutputStream.write(bytes, 0, numberOfReadedBytes);
-			}
+			uploadedAttachFileOutputStream.write(attachFileContent);
 			uploadedAttachFileOutputStream.flush();
 			uploadedAttachFileOutputStream.close();
 			backlogItemAttachFileRepository.save(backlogItemAttachFile);
@@ -57,13 +52,13 @@ public class UploadBacklogItemAttachFileUseCaseImpl implements UploadBacklogItem
 	}
 	
 	@Override
-	public InputStream getUploadedAttachFileInputStream() {
-		return uploadedAttachFileInputStream;
+	public byte[] getAttachFileContent() {
+		return attachFileContent;
 	}
 
 	@Override
-	public void setUploadedAttachFileInputStream(InputStream uploadedAttachFileInputStream) {
-		this.uploadedAttachFileInputStream = uploadedAttachFileInputStream;
+	public void setAttachFileContent(byte[] attachFileContent) {
+		this.attachFileContent = attachFileContent;
 	}
 	
 	@Override
