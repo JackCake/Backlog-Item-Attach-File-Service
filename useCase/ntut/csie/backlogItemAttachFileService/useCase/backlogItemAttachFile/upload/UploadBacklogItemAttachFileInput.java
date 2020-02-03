@@ -3,9 +3,9 @@ package ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.upl
 import ntut.csie.backlogItemAttachFileService.useCase.Input;
 
 public interface UploadBacklogItemAttachFileInput extends Input {
-	public byte[] getAttachFileContent();
+	public byte[] getAttachFileContents();
 	
-	public void setAttachFileContent(byte[] attachFileContent);
+	public void setAttachFileContents(byte[] attachFileContents);
 	
 	public String getName();
 	

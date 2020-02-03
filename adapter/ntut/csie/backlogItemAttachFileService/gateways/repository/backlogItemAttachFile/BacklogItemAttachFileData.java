@@ -2,10 +2,10 @@ package ntut.csie.backlogItemAttachFileService.gateways.repository.backlogItemAt
 
 public class BacklogItemAttachFileData {
 	private String backlogItemAttachFileId;
-	private int orderId;
 	private String name;
 	private String path;
 	private String backlogItemId;
+	private String createTime;
 	
 	public String getBacklogItemAttachFileId() {
 		return backlogItemAttachFileId;
@@ -13,14 +13,6 @@ public class BacklogItemAttachFileData {
 
 	public void setBacklogItemAttachFileId(String backlogItemAttachFileId) {
 		this.backlogItemAttachFileId = backlogItemAttachFileId;
-	}
-
-	public int getOrderId() {
-		return orderId;
-	}
-
-	public void setOrderId(int orderId) {
-		this.orderId = orderId;
 	}
 
 	public String getName() {
@@ -45,5 +37,13 @@ public class BacklogItemAttachFileData {
 
 	public void setBacklogItemId(String backlogItemId) {
 		this.backlogItemId = backlogItemId;
+	}
+
+	public String getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
 	}
 }

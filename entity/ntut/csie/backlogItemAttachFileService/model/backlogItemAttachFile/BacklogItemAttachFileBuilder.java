@@ -1,21 +1,19 @@
 package ntut.csie.backlogItemAttachFileService.model.backlogItemAttachFile;
 
+import java.util.Date;
 import java.util.UUID;
+
+import ntut.csie.backlogItemAttachFileService.model.DateProvider;
 
 public class BacklogItemAttachFileBuilder {
 	private String backlogItemAttachFileId;
-	private int orderId;
 	private String name;
 	private String path;
 	private String backlogItemId;
+	private Date createTime;
 	
 	public static BacklogItemAttachFileBuilder newInstance() {
 		return new BacklogItemAttachFileBuilder();
-	}
-	
-	public BacklogItemAttachFileBuilder orderId(int orderId) {
-		this.orderId = orderId;
-		return this;
 	}
 	
 	public BacklogItemAttachFileBuilder name(String name) {
@@ -33,10 +31,18 @@ public class BacklogItemAttachFileBuilder {
 		return this;
 	}
 	
-	public BacklogItemAttachFile build() {
+	public BacklogItemAttachFile build() throws Exception {
+		String exceptionMessage = "";
+		if(name == null || name.isEmpty()) {
+			exceptionMessage += "The name of the backlog item attach file should be required!\n";
+		}
+		if(!exceptionMessage.isEmpty()) {
+			throw new Exception(exceptionMessage);
+		}
+		
 		this.backlogItemAttachFileId = UUID.randomUUID().toString();
-		BacklogItemAttachFile backlogItemAttachFile = new BacklogItemAttachFile(backlogItemAttachFileId, name, path, backlogItemId);
-		backlogItemAttachFile.setOrderId(orderId);
+		this.createTime = DateProvider.now();
+		BacklogItemAttachFile backlogItemAttachFile = new BacklogItemAttachFile(backlogItemAttachFileId, name, path, backlogItemId, createTime);
 		return backlogItemAttachFile;
 	}
 }

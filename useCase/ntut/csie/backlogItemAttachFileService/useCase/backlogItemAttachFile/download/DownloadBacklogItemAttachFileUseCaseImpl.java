@@ -25,16 +25,16 @@ public class DownloadBacklogItemAttachFileUseCaseImpl implements DownloadBacklog
 			return;
 		}
 		File attachFile = new File(backlogItemAttachFile.getPath());
-		byte[] attachFileContent = null;
+		byte[] attachFileContents = null;
 		try {
-			attachFileContent = Files.readAllBytes(attachFile.toPath());
+			attachFileContents = Files.readAllBytes(attachFile.toPath());
 		} catch (IOException e) {
 			output.setDownloadSuccess(false);
 			output.setErrorMessage(e.getMessage());
 			return;
 		}
 		output.setDownloadSuccess(true);
-		output.setAttachFileContent(attachFileContent);
+		output.setAttachFileContents(attachFileContents);
 	}
 
 	@Override

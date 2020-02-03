@@ -33,24 +33,24 @@ public class UploadBacklogItemAttachFileRestfulAPI implements UploadBacklogItemA
 	public synchronized UploadBacklogItemAttachFileOutput uploadBacklogItemAttachFile(
 			@PathParam("backlog_item_id") String backlogItemId, 
 			String backlogItemAttachFileInfo) {
-		byte[] attachFileContent = null;
+		byte[] attachFileContents = null;
 		String name = "";
 		
 		UploadBacklogItemAttachFileOutput output = this;
 		
 		try {
 			JSONObject backlogItemAttachFileJSON = new JSONObject(backlogItemAttachFileInfo);
-			attachFileContent = Base64.decode(backlogItemAttachFileJSON.getString("attachFileContent"));
+			attachFileContents = Base64.decode(backlogItemAttachFileJSON.getString("attachFileContents"));
 			name = backlogItemAttachFileJSON.getString("name");
 		} catch (JSONException e) {
 			e.printStackTrace();
 			output.setUploadSuccess(false);
-			output.setErrorMessage("Sorry, please try again!");
+			output.setErrorMessage("Sorry, there is the service problem when upload the attach file of the backlog item. Please contact to the system administrator!");
 			return output;
 		}
 		
 		UploadBacklogItemAttachFileInput input = (UploadBacklogItemAttachFileInput) uploadBacklogItemAttachFileUseCase;
-		input.setAttachFileContent(attachFileContent);
+		input.setAttachFileContents(attachFileContents);
 		input.setName(name);
 		input.setBacklogItemId(backlogItemId);
 		

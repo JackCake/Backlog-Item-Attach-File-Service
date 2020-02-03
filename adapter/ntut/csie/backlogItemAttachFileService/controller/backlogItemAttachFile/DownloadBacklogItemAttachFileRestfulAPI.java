@@ -14,13 +14,13 @@ import ntut.csie.backlogItemAttachFileService.useCase.backlogItemAttachFile.down
 
 @Path("/backlog_item_attach_files")
 @Singleton
-public class DownloadBacklogItemAttachFileRestfulAPI implements DownloadBacklogItemAttachFileOutput{
+public class DownloadBacklogItemAttachFileRestfulAPI implements DownloadBacklogItemAttachFileOutput {
 	private ApplicationContext applicationContext = ApplicationContext.getInstance();
 	private DownloadBacklogItemAttachFileUseCase downloadBacklogItemAttachFileUseCase = applicationContext.newDownloadBacklogItemAttachFileUseCase();
 	
 	private boolean downloadSuccess;
 	private String errorMessage;
-	private byte[] attachFileContent;
+	private byte[] attachFileContents;
 	
 	@GET
 	@Path("/{backlog_item_attach_file_id}")
@@ -58,12 +58,12 @@ public class DownloadBacklogItemAttachFileRestfulAPI implements DownloadBacklogI
 	}
 
 	@Override
-	public byte[] getAttachFileContent() {
-		return attachFileContent;
+	public byte[] getAttachFileContents() {
+		return attachFileContents;
 	}
 
 	@Override
-	public void setAttachFileContent(byte[] attachFileContent) {
-		this.attachFileContent = attachFileContent;
+	public void setAttachFileContents(byte[] attachFileContents) {
+		this.attachFileContents = attachFileContents;
 	}
 }

@@ -58,10 +58,10 @@ public class SqlDatabaseHelper {
 		Statement statement = null;
 		String sql = "Create Table If Not Exists " + BacklogItemAttachFileTable.tableName + " ("
 				+ BacklogItemAttachFileTable.backlogItemAttachFileId + " Varchar(50) Not Null, "
-				+ BacklogItemAttachFileTable.orderId + " Integer Not Null, "
 				+ BacklogItemAttachFileTable.name + " Varchar(50) Not Null, "
-				+ BacklogItemAttachFileTable.path + " Varchar(256) Not Null, "
+				+ BacklogItemAttachFileTable.path + " Varchar(255) Not Null, "
 				+ BacklogItemAttachFileTable.backlogItemId + " Varchar(50) Not Null, "
+				+ BacklogItemAttachFileTable.createTime + " Datetime Not Null Default Current_Timestamp, "
 				+ "Primary Key (" + BacklogItemAttachFileTable.backlogItemAttachFileId + ") "
 				+ ")";
 		try {
@@ -101,12 +101,6 @@ public class SqlDatabaseHelper {
 	public PreparedStatement getPreparedStatement(String sql) throws SQLException {
 		PreparedStatement preparedStatement = connection.prepareStatement(sql);
 		return preparedStatement;
-	}
-	
-	public ResultSet getResultSet(String query) throws SQLException {
-		Statement statement = connection.createStatement();
-		ResultSet resultSet = statement.executeQuery(query);
-		return resultSet;
 	}
 	
 	public void closeStatement(Statement statement) {

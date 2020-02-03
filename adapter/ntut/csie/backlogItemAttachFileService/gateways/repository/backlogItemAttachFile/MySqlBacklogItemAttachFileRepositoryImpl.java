@@ -31,16 +31,16 @@ public class MySqlBacklogItemAttachFileRepositoryImpl implements BacklogItemAtta
 					BacklogItemAttachFileTable.tableName);
 			preparedStatement = sqlDatabaseHelper.getPreparedStatement(sql);
 			preparedStatement.setString(1, data.getBacklogItemAttachFileId());
-			preparedStatement.setInt(2, data.getOrderId());
-			preparedStatement.setString(3, data.getName());
-			preparedStatement.setString(4, data.getPath());
-			preparedStatement.setString(5, data.getBacklogItemId());
+			preparedStatement.setString(2, data.getName());
+			preparedStatement.setString(3, data.getPath());
+			preparedStatement.setString(4, data.getBacklogItemId());
+			preparedStatement.setString(5, data.getCreateTime());
 			preparedStatement.executeUpdate();
 			sqlDatabaseHelper.transactionEnd();
 		} catch(SQLException e) {
 			sqlDatabaseHelper.transactionError();
 			e.printStackTrace();
-			throw new Exception("Sorry, there is the problem when save the attach file of the backlog item. Please try again!");
+			throw new Exception("Sorry, there is the database problem when save the attach file of the backlog item. Please contact to the system administrator!");
 		} finally {
 			sqlDatabaseHelper.closePreparedStatement(preparedStatement);
 			sqlDatabaseHelper.releaseConnection();
@@ -53,17 +53,18 @@ public class MySqlBacklogItemAttachFileRepositoryImpl implements BacklogItemAtta
 		PreparedStatement preparedStatement = null;
 		try {
 			sqlDatabaseHelper.transactionStart();
-			String sql = String.format("Delete From %s Where %s = '%s'",
+			BacklogItemAttachFileData data = backlogItemAttachFileMapper.transformToBacklogItemAttachFileData(backlogItemAttachFile);
+			String sql = String.format("Delete From %s Where %s = ?",
 					BacklogItemAttachFileTable.tableName,
-					BacklogItemAttachFileTable.backlogItemAttachFileId,
-					backlogItemAttachFile.getBacklogItemAttachFileId());
+					BacklogItemAttachFileTable.backlogItemAttachFileId);
 			preparedStatement = sqlDatabaseHelper.getPreparedStatement(sql);
+			preparedStatement.setString(1, data.getBacklogItemAttachFileId());
 			preparedStatement.executeUpdate();
 			sqlDatabaseHelper.transactionEnd();
 		}  catch(SQLException e) {
 			sqlDatabaseHelper.transactionError();
 			e.printStackTrace();
-			throw new Exception("Sorry, there is the problem when remove the attach file of the backlog item. Please try again!");
+			throw new Exception("Sorry, there is the database problem when remove the attach file of the backlog item. Please contact to the system administrator!");
 		} finally {
 			sqlDatabaseHelper.closePreparedStatement(preparedStatement);
 			sqlDatabaseHelper.releaseConnection();
@@ -73,33 +74,36 @@ public class MySqlBacklogItemAttachFileRepositoryImpl implements BacklogItemAtta
 	@Override
 	public synchronized BacklogItemAttachFile getBacklogItemAttachFileById(String backlogItemAttachFileId) {
 		sqlDatabaseHelper.connectToDatabase();
+		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		BacklogItemAttachFile backlogItemAttachFile = null;
 		try {
-			String query = String.format("Select * From %s Where %s = '%s'",
+			String sql = String.format("Select * From %s Where %s = ?",
 					BacklogItemAttachFileTable.tableName,
-					BacklogItemAttachFileTable.backlogItemAttachFileId,
-					backlogItemAttachFileId);
-			resultSet = sqlDatabaseHelper.getResultSet(query);
+					BacklogItemAttachFileTable.backlogItemAttachFileId);
+			preparedStatement = sqlDatabaseHelper.getPreparedStatement(sql);
+			preparedStatement.setString(1, backlogItemAttachFileId);
+			resultSet = preparedStatement.executeQuery();
 			if (resultSet.first()) {
-				int orderId = resultSet.getInt(BacklogItemAttachFileTable.orderId);
 				String name = resultSet.getString(BacklogItemAttachFileTable.name);
 				String path = resultSet.getString(BacklogItemAttachFileTable.path);
 				String backlogItemId = resultSet.getString(BacklogItemAttachFileTable.backlogItemId);
+				String createTime = resultSet.getString(BacklogItemAttachFileTable.createTime);
 				
 				BacklogItemAttachFileData data = new BacklogItemAttachFileData();
 				data.setBacklogItemAttachFileId(backlogItemAttachFileId);
-				data.setOrderId(orderId);
 				data.setName(name);
 				data.setPath(path);
 				data.setBacklogItemId(backlogItemId);
+				data.setCreateTime(createTime);
 
 				backlogItemAttachFile = backlogItemAttachFileMapper.transformToBacklogItemAttachFile(data);
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			sqlDatabaseHelper.closeResultSet(resultSet);
+			sqlDatabaseHelper.closePreparedStatement(preparedStatement);
 			sqlDatabaseHelper.releaseConnection();
 		}
 		return backlogItemAttachFile;
@@ -108,35 +112,38 @@ public class MySqlBacklogItemAttachFileRepositoryImpl implements BacklogItemAtta
 	@Override
 	public synchronized Collection<BacklogItemAttachFile> getBacklogItemAttachFilesByBacklogItemId(String backlogItemId){
 		sqlDatabaseHelper.connectToDatabase();
+		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		Collection<BacklogItemAttachFile> backlogItemAttachFiles = new ArrayList<>();
 		try {
-			String query = String.format("Select * From %s Where %s = '%s' Order By %s",
+			String sql = String.format("Select * From %s Where %s = ? Order By %s",
 					BacklogItemAttachFileTable.tableName, 
 					BacklogItemAttachFileTable.backlogItemId, 
-					backlogItemId, 
-					BacklogItemAttachFileTable.orderId);
-			resultSet = sqlDatabaseHelper.getResultSet(query);
+					BacklogItemAttachFileTable.createTime);
+			preparedStatement = sqlDatabaseHelper.getPreparedStatement(sql);
+			preparedStatement.setString(1, backlogItemId);
+			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
 				String backlogItemAttachFileId = resultSet.getString(BacklogItemAttachFileTable.backlogItemAttachFileId);
-				int orderId = resultSet.getInt(BacklogItemAttachFileTable.orderId);
 				String name = resultSet.getString(BacklogItemAttachFileTable.name);
 				String path = resultSet.getString(BacklogItemAttachFileTable.path);
+				String createTime = resultSet.getString(BacklogItemAttachFileTable.createTime);
 				
 				BacklogItemAttachFileData data = new BacklogItemAttachFileData();
 				data.setBacklogItemAttachFileId(backlogItemAttachFileId);
-				data.setOrderId(orderId);
 				data.setName(name);
 				data.setPath(path);
 				data.setBacklogItemId(backlogItemId);
+				data.setCreateTime(createTime);
 
 				BacklogItemAttachFile backlogItemAttachFile = backlogItemAttachFileMapper.transformToBacklogItemAttachFile(data);
 				backlogItemAttachFiles.add(backlogItemAttachFile);
 			}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			sqlDatabaseHelper.closeResultSet(resultSet);
+			sqlDatabaseHelper.closePreparedStatement(preparedStatement);
 			sqlDatabaseHelper.releaseConnection();
 		}
 		return backlogItemAttachFiles;

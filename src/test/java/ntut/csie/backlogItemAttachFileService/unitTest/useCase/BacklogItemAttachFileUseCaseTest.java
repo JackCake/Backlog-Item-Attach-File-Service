@@ -1,6 +1,7 @@
 package ntut.csie.backlogItemAttachFileService.unitTest.useCase;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -67,21 +68,91 @@ public class BacklogItemAttachFileUseCaseTest {
 	public void Should_Success_When_UploadBacklogItemAttachFile() {
 		String name = "Test.txt";
 		File attachFile = new File(name);
-		byte[] attachFileContent = null;
+		byte[] attachFileContents = null;
 		try {
-			attachFileContent = Files.readAllBytes(attachFile.toPath());
+			attachFileContents = Files.readAllBytes(attachFile.toPath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String backlogItemId = "1";
 		
-		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContent, name, backlogItemId);
+		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
 		
-		assertTrue(output.isUploadSuccess());
+		boolean isUploadSuccess = output.isUploadSuccess();
+		assertTrue(isUploadSuccess);
 	}
 	
 	@Test
-	public void Should_ReturnBacklogItemAttachFiles_When_GetBacklogItemAttachFilesByBacklogItemId() {
+	public void Should_ReturnErrorMessage_When_UploadAttachFileToBacklogItemWithNullAttachFileContents() {
+		byte[] attachFileContents = null;
+		String name = null;
+		
+		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
+		
+		boolean isUploadSuccess = output.isUploadSuccess();
+		String errorMessage = output.getErrorMessage();
+		String expectedErrorMessage = "Please upload the file!";
+		assertFalse(isUploadSuccess);
+		assertEquals(expectedErrorMessage, errorMessage);
+	}
+	
+	@Test
+	public void Should_ReturnErrorMessage_When_UploadAttachFileToBacklogItemWithEmptyAttachFileContents() {
+		byte[] attachFileContents = new byte[0];
+		String name = "";
+		
+		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
+		
+		boolean isUploadSuccess = output.isUploadSuccess();
+		String errorMessage = output.getErrorMessage();
+		String expectedErrorMessage = "Please upload the file!";
+		assertFalse(isUploadSuccess);
+		assertEquals(expectedErrorMessage, errorMessage);
+	}
+	
+	@Test
+	public void Should_ReturnErrorMessage_When_UploadAttachFileToBacklogItemWithTooLargeAttachFileContents() {
+		byte[] attachFileContents = new byte[2097153];
+		String name = "";
+		
+		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
+		
+		boolean isUploadSuccess = output.isUploadSuccess();
+		String errorMessage = output.getErrorMessage();
+		String expectedErrorMessage = "The size of the file is too large! Please upload the smaller file!";
+		assertFalse(isUploadSuccess);
+		assertEquals(expectedErrorMessage, errorMessage);
+	}
+	
+	@Test
+	public void Should_ReturnErrorMessage_When_UploadAttachFileToBacklogItemWithNullName() {
+		byte[] attachFileContents = new byte[2097152];
+		String name = null;
+		
+		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
+		
+		boolean isUploadSuccess = output.isUploadSuccess();
+		String errorMessage = output.getErrorMessage();
+		String expectedErrorMessage = "The name of the backlog item attach file should be required!\n";
+		assertFalse(isUploadSuccess);
+		assertEquals(expectedErrorMessage, errorMessage);
+	}
+	
+	@Test
+	public void Should_ReturnErrorMessage_When_UploadAttachFileToBacklogItemWithEmptyName() {
+		byte[] attachFileContents = new byte[2097152];
+		String name = "";
+		
+		UploadBacklogItemAttachFileOutput output = uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
+		
+		boolean isUploadSuccess = output.isUploadSuccess();
+		String errorMessage = output.getErrorMessage();
+		String expectedErrorMessage = "The name of the backlog item attach file should be required!\n";
+		assertFalse(isUploadSuccess);
+		assertEquals(expectedErrorMessage, errorMessage);
+	}
+	
+	@Test
+	public void Should_ReturnBacklogItemAttachFileList_When_GetAttachFilesOfBacklogItem() {
 		String[] names = {"Test.txt", "測試用檔案-工作會議附件.docx", "(Test) Product Backlog Excel File 2020-1-8.xlsx"};
 		String backlogItemId = "1";
 		
@@ -89,18 +160,21 @@ public class BacklogItemAttachFileUseCaseTest {
 		
 		for(int i = 0; i < numberOfBacklogItemAttachFiles; i++) {
 			File attachFile = new File(names[i]);
-			byte[] attachFileContent = null;
+			byte[] attachFileContents = null;
 			try {
-				attachFileContent = Files.readAllBytes(attachFile.toPath());
+				attachFileContents = Files.readAllBytes(attachFile.toPath());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			uploadBacklogItemAttachFile(attachFileContent, names[i], backlogItemId);
+			uploadBacklogItemAttachFile(attachFileContents, names[i], backlogItemId);
 		}
 		
-		GetBacklogItemAttachFilesByBacklogItemIdOutput output = getBacklogItemAttachFilesByBacklogItemId();
+		GetBacklogItemAttachFilesByBacklogItemIdOutput output = getBacklogItemAttachFilesByBacklogItemId(backlogItemId);
 		List<BacklogItemAttachFileModel> backlogItemAttachFileList = output.getBacklogItemAttachFileList();
 		
+		for(int i = 0; i < numberOfBacklogItemAttachFiles; i++) {
+			assertEquals(names[i], backlogItemAttachFileList.get(i).getName());
+		}
 		assertEquals(numberOfBacklogItemAttachFiles, backlogItemAttachFileList.size());
 	}
 	
@@ -108,57 +182,81 @@ public class BacklogItemAttachFileUseCaseTest {
 	public void Should_Success_When_DownloadBacklogItemAttachFile() {
 		String name = "Test.txt";
 		File attachFile = new File(name);
-		byte[] attachFileContent = null;
+		byte[] attachFileContents = null;
 		try {
-			attachFileContent = Files.readAllBytes(attachFile.toPath());
+			attachFileContents = Files.readAllBytes(attachFile.toPath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String backlogItemId = "1";
 		
-		uploadBacklogItemAttachFile(attachFileContent, name, backlogItemId);
+		uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
 
 		List<BacklogItemAttachFile> backlogItemAttachFileList = new ArrayList<>(fakeBacklogItemAttachFileRepository.getBacklogItemAttachFilesByBacklogItemId(backlogItemId));
 		String backlogItemAttachFileId = backlogItemAttachFileList.get(backlogItemAttachFileList.size() - 1).getBacklogItemAttachFileId();
 		
 		DownloadBacklogItemAttachFileOutput output = downloadBacklogItemAttachFile(backlogItemAttachFileId);
 		
-		assertTrue(output.isDownloadSuccess());
+		boolean isDownloadSuccess = output.isDownloadSuccess();
+		assertTrue(isDownloadSuccess);
+	}
+	
+	@Test
+	public void Should_ReturnErrorMessage_When_DownloadNotExistTaskAttachFile() {
+		DownloadBacklogItemAttachFileOutput output = downloadBacklogItemAttachFile(null);
+		
+		boolean isDownloadSuccess = output.isDownloadSuccess();
+		String errorMessage = output.getErrorMessage();
+		String expectedErrorMessage = "Sorry, the attach file of the backlog item is not exist!";
+		assertFalse(isDownloadSuccess);
+		assertEquals(expectedErrorMessage, errorMessage);
 	}
 	
 	@Test
 	public void Should_Success_When_RemoveBacklogItemAttachFile() {
 		String name = "Test.txt";
 		File attachFile = new File(name);
-		byte[] attachFileContent = null;
+		byte[] attachFileContents = null;
 		try {
-			attachFileContent = Files.readAllBytes(attachFile.toPath());
+			attachFileContents = Files.readAllBytes(attachFile.toPath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String backlogItemId = "1";
 		
-		uploadBacklogItemAttachFile(attachFileContent, name, backlogItemId);
+		uploadBacklogItemAttachFile(attachFileContents, name, backlogItemId);
 		List<BacklogItemAttachFile> backlogItemAttachFileList = new ArrayList<>(fakeBacklogItemAttachFileRepository.getBacklogItemAttachFilesByBacklogItemId(backlogItemId));
 		String backlogItemAttachFileId = backlogItemAttachFileList.get(backlogItemAttachFileList.size() - 1).getBacklogItemAttachFileId();
 		
 		RemoveBacklogItemAttachFileOutput output = removeBacklogItemAttachFile(backlogItemAttachFileId);
 		
-		assertTrue(output.isRemoveSuccess());
+		boolean isRemoveSuccess = output.isRemoveSuccess();
+		assertTrue(isRemoveSuccess);
 	}
 	
-	private UploadBacklogItemAttachFileOutput uploadBacklogItemAttachFile(byte[] attachFileContent, String name, String backlogItemId) {
-		UploadBacklogItemAttachFileUseCase addBacklogItemAttachFileUseCase = new UploadBacklogItemAttachFileUseCaseImpl(fakeBacklogItemAttachFileRepository);
-		UploadBacklogItemAttachFileInput input = (UploadBacklogItemAttachFileInput) addBacklogItemAttachFileUseCase;
-		input.setAttachFileContent(attachFileContent);
+	@Test
+	public void Should_ReturnErrorMessage_When_RemoveNotExistBacklogItemAttachFile() {
+		String backlogItemAttachFileId = null;
+		
+		RemoveBacklogItemAttachFileOutput output = removeBacklogItemAttachFile(backlogItemAttachFileId);
+		
+		boolean isRemoveSuccess = output.isRemoveSuccess();
+		String errorMessage = output.getErrorMessage();
+		String expectedErrorMessage = "Sorry, the attach file of the backlog item is not exist!";
+		assertFalse(isRemoveSuccess);
+		assertEquals(expectedErrorMessage, errorMessage);
+	}
+	
+	private UploadBacklogItemAttachFileOutput uploadBacklogItemAttachFile(byte[] attachFileContents, String name, String backlogItemId) {
+		UploadBacklogItemAttachFileUseCase uploadBacklogItemAttachFileUseCase = new UploadBacklogItemAttachFileUseCaseImpl(fakeBacklogItemAttachFileRepository);
+		UploadBacklogItemAttachFileInput input = (UploadBacklogItemAttachFileInput) uploadBacklogItemAttachFileUseCase;
+		input.setAttachFileContents(attachFileContents);
 		input.setName(name);
 		input.setBacklogItemId(backlogItemId);
 		UploadBacklogItemAttachFileOutput output = new UploadBacklogItemAttachFileRestfulAPI();
-		addBacklogItemAttachFileUseCase.execute(input, output);
+		uploadBacklogItemAttachFileUseCase.execute(input, output);
 		return output;
 	}
 	
-	private GetBacklogItemAttachFilesByBacklogItemIdOutput getBacklogItemAttachFilesByBacklogItemId() {
+	private GetBacklogItemAttachFilesByBacklogItemIdOutput getBacklogItemAttachFilesByBacklogItemId(String backlogItemId) {
 		GetBacklogItemAttachFilesByBacklogItemIdUseCase getBacklogItemAttachFilesByBacklogItemIdUseCase = new GetBacklogItemAttachFilesByBacklogItemIdUseCaseImpl(fakeBacklogItemAttachFileRepository);
 		GetBacklogItemAttachFilesByBacklogItemIdInput input = (GetBacklogItemAttachFilesByBacklogItemIdInput) getBacklogItemAttachFilesByBacklogItemIdUseCase;
 		input.setBacklogItemId(backlogItemId);

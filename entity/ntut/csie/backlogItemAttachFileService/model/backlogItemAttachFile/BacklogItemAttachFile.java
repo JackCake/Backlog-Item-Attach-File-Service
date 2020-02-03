@@ -1,19 +1,22 @@
 package ntut.csie.backlogItemAttachFileService.model.backlogItemAttachFile;
 
+import java.util.Date;
+
 public class BacklogItemAttachFile {
 	private String backlogItemAttachFileId;
-	private int orderId;
 	private String name;
 	private String path;
 	private String backlogItemId;
+	private Date createTime;
 	
 	public BacklogItemAttachFile() {}
 	
-	public BacklogItemAttachFile(String backlogItemAttachFileId, String name, String path, String backlogItemId) {
+	public BacklogItemAttachFile(String backlogItemAttachFileId, String name, String path, String backlogItemId, Date createTime) {
 		this.backlogItemAttachFileId = backlogItemAttachFileId;
 		this.name = name;
 		this.path = path;
 		this.backlogItemId = backlogItemId;
+		this.createTime = createTime;
 	}
 
 	public String getBacklogItemAttachFileId() {
@@ -22,14 +25,6 @@ public class BacklogItemAttachFile {
 
 	public void setBacklogItemAttachFileId(String backlogItemAttachFileId) {
 		this.backlogItemAttachFileId = backlogItemAttachFileId;
-	}
-
-	public int getOrderId() {
-		return orderId;
-	}
-
-	public void setOrderId(int orderId) {
-		this.orderId = orderId;
 	}
 
 	public String getName() {
@@ -54,5 +49,13 @@ public class BacklogItemAttachFile {
 
 	public void setBacklogItemId(String backlogItemId) {
 		this.backlogItemId = backlogItemId;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
 	}
 }

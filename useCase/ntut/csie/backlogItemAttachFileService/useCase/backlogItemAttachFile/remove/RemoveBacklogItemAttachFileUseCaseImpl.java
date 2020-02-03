@@ -25,7 +25,7 @@ public class RemoveBacklogItemAttachFileUseCaseImpl implements RemoveBacklogItem
 		File attachFile = new File(backlogItemAttachFile.getPath());
 		if(!attachFile.delete()) {
 			output.setRemoveSuccess(false);
-			output.setErrorMessage("Sorry, there is the problem when remove the attach file!");
+			output.setErrorMessage("Sorry, there is the problem when delete the attach file of the backlog item. Please contact to the system administrator!");
 			return;
 		}
 		File folder = attachFile.getParentFile();

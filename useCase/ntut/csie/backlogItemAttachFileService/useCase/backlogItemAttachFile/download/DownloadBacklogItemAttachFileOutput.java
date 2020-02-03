@@ -11,7 +11,7 @@ public interface DownloadBacklogItemAttachFileOutput extends Output {
 	
 	public void setErrorMessage(String errorMessage);
 	
-	public byte[] getAttachFileContent();
+	public byte[] getAttachFileContents();
 	
-	public void setAttachFileContent(byte[] attachFileContent);
+	public void setAttachFileContents(byte[] attachFileContents);
 }
